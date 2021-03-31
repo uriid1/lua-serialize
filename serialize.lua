@@ -13,15 +13,16 @@ local serialize = {}
 function serialize.create(tbl)
     local result = "{ "
     local key_depth = false
-    function serealize_table(tbl)
+    function serialize_table(tbl)
         --
         for k, v in pairs(tbl) do
             if type(tbl[k]) == "table" then
                 result = result..k.." = {"
-                serealize_table(tbl[k])
+                serialize_table(tbl[k])
                 key_depth = true
             else
                 key_depth = false
+
                 if type(k) == "number" then
                     result = result.."["..k.."]".." = "..tostring("'"..v.."'")..", "
                 elseif type(k) == "string" then
@@ -29,12 +30,13 @@ function serialize.create(tbl)
                 elseif type(k) == "boolean" then
                     result = result.."["..tostring(k).."]".." = "..tostring("'"..v.."'")..", "
                 end
+
             end
             --
             if key_depth then result = result.."}, " end
         end
     end
-    serealize_table(tbl)
+    serialize_table(tbl)
     result = result.."}"
     return result
 end
