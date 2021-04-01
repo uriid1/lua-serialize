@@ -1,44 +1,38 @@
 --[[
+
     ####****************************####
     #//# Author: by uriid1          #\\#
     #//# license: NO                #\\#
     #//# telegram: uriid1           #\\#
     #//# Mail: appdurov@gmail.com   #\\#
     ####****************************####
+
+    This project is based on https://github.com/rxi/lume
+
 --]]
 
+local pairs = pairs
+local type  = type
+local tostring, tonumber = tostring, tonumber
 local serialize = {}
+
+-- 
+local serialize_map = {
+  [ "boolean" ] = tostring,
+  [ "string"  ] = function(v) return "'"..tostring(v).."'" end,
+  [ "number"  ] = function(v) return v end,
+  [ "table"   ] = function(tbl)
+    local tmp = {}
+    for k, v in pairs(tbl) do
+        tmp[#tmp + 1] = "[" .. serialize.create(k) .. "]=" .. serialize.create(v)
+    end
+    return "{" ..  table.concat(tmp, ",") .. "}"
+  end
+}
 
 -- Serialize Table
 function serialize.create(tbl)
-    local result = "{ "
-    local key_depth = false
-    function serialize_table(tbl)
-        --
-        for k, v in pairs(tbl) do
-            if type(tbl[k]) == "table" then
-                result = result..k.." = {"
-                serialize_table(tbl[k])
-                key_depth = true
-            else
-                key_depth = false
-
-                if type(k) == "number" then
-                    result = result.."["..k.."]".." = "..tostring("'"..v.."'")..", "
-                elseif type(k) == "string" then
-                    result = result..k.." = "..tostring("'"..v.."'")..", "
-                elseif type(k) == "boolean" then
-                    result = result.."["..tostring(k).."]".." = "..tostring("'"..v.."'")..", "
-                end
-
-            end
-            --
-            if key_depth then result = result.."}, " end
-        end
-    end
-    serialize_table(tbl)
-    result = result.."}"
-    return result
+    return serialize_map[type(tbl)](tbl)
 end
 
 -- Load Table
@@ -46,8 +40,7 @@ function serialize.load(fname)
     local file = io.open(fname)
     local rfile = file:read("*a")
     file:close()
-    local data = load("return"..rfile)()
-    return data
+    return assert((loadstring or load)("return"..rfile))()
 end
 
 -- Save Table
