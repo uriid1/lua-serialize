@@ -41,7 +41,6 @@ local my_table = {
 -- Save my_table
 serialize.save(my_table, "my_table.tbl")
 
---[[
 -- Load the table you just saved
 local data = serialize.load("my_table.tbl")
 
@@ -55,4 +54,3 @@ print( data.gun.player[2] )
 print( data.gun.player[3] )
 
 print( data.depth.depth1.depth2.depth3.depth4.depth5.text )
-]]
