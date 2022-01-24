@@ -1,56 +1,68 @@
---[[  This project is based on https://github.com/rxi/lume
-    ####****************************####
-    #//# Author: by uriid1          #\\#
-    #//# license: NO                #\\#
-    #//# telegram: uriid1           #\\#
-    #//# Mail: appdurov@gmail.com   #\\#
-    ####****************************####
+-- This lib based on https://github.com/rxi/lume
+--[[
+    ####--------------------------------####
+    #--# Author:   by uriid1            #--#
+    #--# license:  GNU GPL              #--#
+    #--# telegram: @foxdacam            #--#
+    #--# Mail:     appdurov@gmail.com   #--#
+    ####--------------------------------####
 --]]
 
-local pairs = pairs;
-local type  = type;
-local tostring = tostring;
-local tonumber = tonumber;
-local serialize = {};
+local M = {}
+
+local pairs    = pairs
+local type     = type
+local tostring = tostring
 
 -- Recursive serialization
 local serialize_map = {
-  [ "boolean" ] = tostring,
-  [ "string"  ] = function(v) return "'"..tostring(v).."'" end,
-  [ "number"  ] = function(v)
+  ["boolean"] = tostring,
+  ["string"]  = function(v, value)
+        if value then
+            return "[["..tostring(v).."]]"
+        end
+        return "'"..tostring(v).."'"
+  end,
+  ["number"]  = function(v)
     if      (v ~=  v)     then return  "0/0";      --  nan
     elseif  (v ==  1 / 0) then return  "1/0";      --  inf
     elseif  (v == -1 / 0) then return "-1/0"; end  -- -inf
     return tostring(v)
   end,
-  [ "table"   ] = function(tbl)
-    local tmp = {};
+  ["table"] = function(tbl)
+    local tmp = {}
+    local tmp_len = #tmp
     for k, v in pairs(tbl) do 
-      tmp[#tmp + 1] = "[" .. serialize.create(k) .. "]=" .. serialize.create(v); 
+      tmp[tmp_len + 1] = "[" .. M.create(k, false) .. "]=" .. M.create(v, true)
     end
-    return "{" ..  table.concat(tmp, ",") .. "}";
+    return "{" .. table.concat(tmp, ",") .. "}"
   end
 }
 
 -- Serialize Table
-function serialize.create(tbl)
-    return serialize_map[type(tbl)](tbl);
+function M.create(tbl, value)
+    return serialize_map[type(tbl)](tbl, value)
 end
 
 -- Load Table
-function serialize.load(fname)
-    local file = io.open(fname);
-    local rfile = file:read("*a");
-    file:close();
-    return assert((loadstring or load)("return"..rfile))();
+function M.load(fname)
+    local file = io.open(fname)
+    local rfile = file:read("*a")
+    file:close()
+    return assert((loadstring or load)("return"..rfile))()
+end
+
+-- Load String
+function M.loadstring(str)
+    return assert((loadstring or load)("return"..str))()
 end
 
 -- Save Table
-function serialize.save(tbl, fname)
-    local file = io.open(fname, "w");
-    local wtable = serialize.create(tbl);
-    file:write(wtable);
-    file:close();
+function M.save(tbl, fname)
+    local file = io.open(fname, "w")
+    local wtable = M.create(tbl)
+    file:write(wtable)
+    file:close()
 end
 
-return serialize;
+return M
