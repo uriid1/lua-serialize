@@ -20,7 +20,7 @@ local serialize_map = {
   ["boolean"] = tostring,
   ["string"]  = function(v, value)
         if value then
-            return "[["..tostring(v).."]]"
+            return "[=["..tostring(v).."]=]"
         end
         return "'"..tostring(v).."'"
   end,
