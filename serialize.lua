@@ -13,6 +13,7 @@ local M = {}
 local pairs    = pairs
 local type     = type
 local tostring = tostring
+local tonumber = tonumber
 
 -- Recursive serialization
 local serialize_map = {
@@ -31,9 +32,8 @@ local serialize_map = {
   end,
   ["table"] = function(tbl)
     local tmp = {}
-    local tmp_len = #tmp
     for k, v in pairs(tbl) do 
-      tmp[tmp_len + 1] = "[" .. M.create(k, false) .. "]=" .. M.create(v, true)
+      tmp[#tmp + 1] = "[" .. M.create(k, false) .. "]=" .. M.create(v, true)
     end
     return "{" .. table.concat(tmp, ",") .. "}"
   end
