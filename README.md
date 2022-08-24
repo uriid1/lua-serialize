@@ -12,7 +12,6 @@ local serialize = require "serialize"
 -- load lib
 local serialize = require "serialize"
 
--- table
 local my_table = {
     -- Weapoon
     gun = {
